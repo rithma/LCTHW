@@ -1,3 +1,11 @@
+its a dot when its not a pointer  
+who.name = strdup(name);
+
+its an arrow when it IS A POINTER
+who->name = strdup(name);
+
+
+
 ```c
 
 
