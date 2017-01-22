@@ -84,3 +84,11 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
+```
+other news-
+everyone used to do this so often:  
+(*(blah + i))  
+they changed it to this  
+blah[i]
+
+
