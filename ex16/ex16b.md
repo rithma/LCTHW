@@ -1,10 +1,21 @@
 its a dot when its not a pointer  
+```c
 who.name = strdup(name);
-
+```
 its an arrow when it IS A POINTER
+```c
 who->name = strdup(name);
-
-
+```
+#its syntactic sugar!!!
+GET IT??!?!?!?!
+```c
+who->name 
+```
+#IS EXACTLY THE SAME AS
+```c
+(*who).name
+```
+#*and here's excercise 16 from LCTHW*
 
 ```c
 
