@@ -85,10 +85,15 @@ int main(int argc, char *argv[])
 }
 
 ```
-other news-
+#other news-
 everyone used to do this so often:  
-(*(blah + i))  
+```c
+(*(blah + i))
+```
 they changed it to this  
+```c
 blah[i]
+```
+
 
 
