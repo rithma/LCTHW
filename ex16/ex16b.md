@@ -90,7 +90,7 @@ everyone used to do this so often:
 ```c
 (*(blah + i))
 ```
-they changed it to this  
+they changed it to this:  
 ```c
 blah[i]
 ```
