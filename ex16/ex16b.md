@@ -18,7 +18,7 @@ typedef struct {    //create a structure with 4 elements
 //function with return type PersonPointer. 
 Person * Person_create(char *name, int age, int height, int weight)
 {
-	Person *who;
+	Person *who;                    //working with pointers so we can use malloc
 	who = malloc(sizeof(Person));   //malloc gives us a piece of memory the size of Person, given all the fields
     assert(who != NULL);                    //asserts who is a valid piece of memory
 
