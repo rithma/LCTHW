@@ -106,5 +106,10 @@ they changed it to this:
 blah[i]
 ```
 
+#breaking it
 
+//Try passing NULL to Person_destroy see what it does.   
+   Assertion failed: (who != NULL), function Person_destroy, file ex16.c, line 32.
+Abort trap: 6  
+Rithma28-6:learnC admin$   
 
