@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
-#include <errno.h>
+#include <errno.h>   //defines the integer variable errno, which is set by system calls and some library functions in the event of an error to indicate what went wrong.
 #include <string.h>
 
 #define MAX_DATA 512
@@ -14,13 +14,13 @@ struct Address {
 	char email[MAX_DATA];
 };
 
-struct Database {
-	struct Address rows[MAX_ROWS];
+struct Database {    //database Struct is a fixed length array of Address structs
+	struct Address rows[MAX_ROWS];    
 };
 
-struct Connection {
-	FILE *file;
-	struct Database *db;
+struct Connection {  //Connection is a struct made up of:
+	FILE *file;      //a pointer to a file
+	struct Database *db;  //a pointer to that database of 100 rows of Address
 };
 
 void die(const char *message)
@@ -33,8 +33,8 @@ void die(const char *message)
 	exit(1);
 }
 
-void Address_print(struct Address *addr)        //members will use an arrow 
-{
+void Address_print(struct Address *addr)        //
+{                           //members will use an arrow 
 	printf("%d %s %s\n", addr->id, addr->name, addr->email);
 }
 
@@ -48,8 +48,16 @@ void Database_load(struct Connection *conn)
 struct Connection *Database_open(const char *filename, char mode)
 {
 	struct Connection *conn = malloc(sizeof(struct Connection));
-	if(!conn)
-		die("Memory Error");
+
+	if(!conn)    {
+		die("Memory error");
+	}
+    
+    conn->db = malloc(sizeof(struct Database));      //THIS IS THE PART I WAS MISSING, making a bus fault 10
+    
+    if (!conn->db) {
+        die("Memory error");
+    }
 
 	if (mode == 'c') {
 		conn->file = fopen(filename, "w");
@@ -83,19 +91,23 @@ void Database_write(struct Connection *conn)
 	rewind(conn->file);
 
 	int rc = fwrite(conn->db, sizeof(struct Database), 1, conn->file);
-	if (rc != 1)
+
+	if (rc != 1) {
 		die("failed to write database");
+	}
 
 	rc = fflush(conn->file);
-	if (rc == -1)
+
+	if (rc == -1) {
 		die("cannot flush database");
+	}
 }
 
 void Database_create(struct Connection *conn)
 {
 	int i = 0;
 
-	for(i = 0; i < MAX_ROWS; i++){
+	for(i = 0; i < MAX_ROWS; i++) {
 		//make a prototype to initialize it
 		struct Address addr = { .id = i, .set = 0 };
 		//then just assign it
@@ -106,14 +118,15 @@ void Database_create(struct Connection *conn)
 void Database_set(struct Connection *conn, int id, const char *name,
 	const char *email)
 {
-	struct Address *addr = &conn->db->rows[id];
-	if(addr->set)
+	struct Address *addr = &conn->db->rows[id];  //get the [id] element of rows, which is in db, 
+	if(addr->set)  //if set = 1                  //which is in conn, and get the address of it. 
 		die("Already set, delete it first)");
 
 	addr->set = 1;
 
 	//warning: bug, read how to break and fix...
 	char *res = strncpy(addr->name, name, MAX_DATA);
+	addr->name[MAX_DATA - 1] = '\0';
 	//demo the strncpy bug
 	if (!res)
 		die("name copy failed");
@@ -125,10 +138,10 @@ void Database_set(struct Connection *conn, int id, const char *name,
 
 void Database_get(struct Connection *conn, int id)
 {
-	struct Address *addr = &conn->db->rows[id];
-
+	struct Address *addr = &conn->db->rows[id];  //one pointer is returned. see 109
+                                                 //to that ONE element
 	if(addr->set) {
-		Address_print(addr);
+		Address_print(addr);                     //pass the pointer to address print
 	}else{
 		die("ID is not set");
 	}
@@ -136,8 +149,8 @@ void Database_get(struct Connection *conn, int id)
 
 void Database_delete(struct Connection *conn, int id)
 {
-	struct Address addr = {.id = id, .set = 0 };
-	conn->db->rows[id] = addr;
+	struct Address addr = {.id = id, .set = 0 };   //creates empty addr 
+	conn->db->rows[id] = addr;                     //and assigns it to nameAndAddress struct at row[id]
 }
 
 void Database_list(struct Connection *conn)
