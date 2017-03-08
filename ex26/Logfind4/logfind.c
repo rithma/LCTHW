@@ -1,34 +1,15 @@
-/*
-while trying to compile this one, I get:
-cc     logfindZed.c   -o logfindZed
-Rithma28-6:logfind4 admin$ make logfind
-cc     logfind.c   -o logfind
-logfind.c:20:5: error: use of undeclared label 'error'
-    check(pglob != NULL, "invalid glob_t given.");
-    ^
-./dbg.h:35:48: note: expanded from macro 'check'
-    log_err(M, ##__VA_ARGS__); errno = 0; goto error; }
-
-now carefully comparing mine with Zeds to figure out what is wrong.  
-
-FOUND IT!!!!!!   see commentary on ver4Working.  "error: fallthrough" was missing in my code. 
-LINE 69 down.
-
-*/
-
-
-
 #include "dbg.h"
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
 #include <glob.h>
 
 
 const size_t MAX_LINE = 1024;
 
 
-int list_files(glob_t *pglob) 
+int list_files (glob_t *pglob) 
 {
     char *line = calloc(MAX_LINE, 1);
     FILE *file = fopen(".logfind", "r");
@@ -38,42 +19,47 @@ int list_files(glob_t *pglob)
 
     check(pglob != NULL, "Invalid glob_t given.");
     check_mem(line);
-    check(file, "Failed to open .logfind. Make that first.");
+    check(file, "failed to open .logfind, make that first");
 
     rc = glob("*.h", glob_flags, NULL, pglob);
-    check(rc == 0, "Failed to glob.");
+    check(rc == 0, "Failed to glob");
     rc = glob("*.c", glob_flags | GLOB_APPEND, NULL, pglob);
-    check(rc == 0, "Failed to glob.");
+    check(rc == 0, "Failed to glob");
 
-    for(i = 0; i < pglob->gl_pathc; i++) {
-        debug("Matched file: %s", pglob->gl_pathv[i]);
+    for (i = 0; i < pglob->gl_pathc; i++) {
+        debug("Matched files: %s", pglob->gl_pathv[i]);
     }
 
-    rc = 0; // all good
+    rc = 0;
 
-error: // fallthrough
+error:
     if(line) free(line);
     return rc;
+
 }
 
 int scan_file(const char *filename, int search_len, char *search_for[])
 {
-    char *line = calloc(MAX_LINE, 1);
-    FILE *file = fopen(filename, "r");
-    char *found = NULL;
-    int i = 0;
+	char *line = calloc(MAX_LINE, 1);
+	FILE *file = fopen(filename, "r");
+	char *found = NULL;
+	int i = 0;
 
-    check_mem(line);
-    check(file, "Failed to open file: %s", filename);
+	check_mem(line);
+	check(file, "Failed to open file: %s", filename);
 
     // read each line of the file and search that line for the contents
+    
+    // char *fgets(char *str, int n, FILE *stream) reads a line from the specified stream 
+    // and stores it into the string pointed to by str. It stops when either (n-1) characters are read,
+    // the newline character is read, or the end-of-file is reached, whichever comes first.
     while(fgets(line, MAX_LINE-1, file) != NULL && found == NULL) {
-        for(i = 0; i < search_len && found == NULL; i++) {
-            found = strcasestr(line, search_for[i]);
-            if(found) {
-                printf("%s\n", filename);
-            }
-        }
+    	for(i = 0; i < search_len && found == NULL; i++) {
+    		found = strcasestr(line, search_for[i]);
+    		if(found) {
+    			printf("%s\n", filename);
+    		}
+    	}
     }
 
     free(line);
@@ -85,24 +71,61 @@ error:
     if(file) fclose(file);
 
     return -1;
+
 }
 
 
-int main(int argc, char *argv[])
-{
+
+int main(int argc, char * argv[]) {
     int i = 0;
+
+
     glob_t files_found;
-    check(argc > 1, "USAGE: logfind word word word");
-
-    check(list_files(&files_found) == 0, "Failed to list files.");
-
+    check(argc > 1, "USAGE: ./logfind word word word");
+    check(list_files(&files_found) == 0, "failed to list files");
     for(i = 0; i < files_found.gl_pathc; i++) {
-        scan_file(files_found.gl_pathv[i], argc, argv);
+        scan_file(files_found.gl_pathv[i], argc, argv);        //glob returns a struct with a path count(pathc) and a path vector (pathv) of matches.
     }
 
     globfree(&files_found);
-    return 0;
+
+
+
+
+
+
+
+
+
+
+
+	scan_file("logfind.c", argc, argv);
+
+	return 0;
 
 error:
     return 1;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+/* ************* ************** ***************** ****************
+
+logfind.c:54:5: error: use of undeclared label 'error'
+    check(pglob != NULL, "invalid glob_t given.");
+    ^
+./dbg.h:35:48: note: expanded from macro 'check'
+    log_err(M, ##__VA_ARGS__); errno = 0; goto error; }
+                                               ^
+1 error generated.
+
+*/
