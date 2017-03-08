@@ -1,3 +1,20 @@
+/*
+while trying to compile this one, I get:
+cc     logfindZed.c   -o logfindZed
+Rithma28-6:logfind4 admin$ make logfind
+cc     logfind.c   -o logfind
+logfind.c:20:5: error: use of undeclared label 'error'
+    check(pglob != NULL, "invalid glob_t given.");
+    ^
+./dbg.h:35:48: note: expanded from macro 'check'
+    log_err(M, ##__VA_ARGS__); errno = 0; goto error; }
+
+now carefully comparing mine with Zeds to figure out what is wrong.  
+
+*/
+
+
+
 #include "dbg.h"
 #include <stdio.h>
 #include <stdlib.h>
