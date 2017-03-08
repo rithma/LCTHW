@@ -11,6 +11,9 @@ logfind.c:20:5: error: use of undeclared label 'error'
 
 now carefully comparing mine with Zeds to figure out what is wrong.  
 
+FOUND IT!!!!!!   see commentary on ver4Working.  "error: fallthrough" was missing in my code. 
+LINE 69 down.
+
 */
 
 
